@@ -28,3 +28,41 @@ export type QuizWithQuestions = Quiz & {
     options: Option[]
   })[]
 } 
+
+export type Learning = {
+  id: string
+  title: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type Section = {
+  id: string
+  learning_id: string
+  title: string
+  content: string
+  type: string
+}
+
+export type LearningWithSections = Learning & {
+  sections: Section[]
+}
+
+export type LearningSection = {
+  id: string
+}
+
+export type LearningQuiz = {
+  id: string
+  learning_id: string
+  quiz_id: string
+}
+
+export type LearningWithQuiz = Learning & {
+  quiz: Quiz
+}
+
+export type LearningWithSectionsAndQuiz = LearningWithSections & {
+  quiz: QuizWithQuestions
+}
