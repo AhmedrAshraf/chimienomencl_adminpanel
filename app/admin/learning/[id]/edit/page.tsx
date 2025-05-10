@@ -43,12 +43,12 @@ export default function EditLearning() {
         initialData={{
           id: learning.id,
           title: learning.title,
-          description: learning.description,
+          description: learning.description ?? '',
           sections: learning.sections.map((section) => ({
             id: section.id,
             title: section.title,
             content: section.content,
-            type: section.type,
+            type: section.type as 'explanation' | 'example' | 'rule',
             order: section.order,
           })),
         }}

@@ -140,7 +140,7 @@ export default function ViewLearning() {
         </div>
 
         <div className="grid gap-4">
-          {learning.quizzes.map((quizLink) => (
+          {learning?.quizzes.map((quizLink: any) => (
             <Card key={quizLink.id} className="p-4">
               <div className="flex justify-between items-center">
                 <Link

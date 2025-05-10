@@ -38,6 +38,7 @@ export type Learning = {
 }
 
 export type Section = {
+  order: any
   id: string
   learning_id: string
   title: string
@@ -47,6 +48,8 @@ export type Section = {
 
 export type LearningWithSections = Learning & {
   sections: Section[]
+  quizzes: LearningQuiz[]
+  learning_quizzes: LearningQuiz[]
 }
 
 export type LearningSection = {
