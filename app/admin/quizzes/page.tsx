@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { quizService } from '@/lib/services/quizService'
 import { Quiz } from '@/types/database'
@@ -67,6 +67,11 @@ export default function QuizList() {
                 <p className="text-gray-500 mt-1">{quiz.description}</p>
               </div>
               <div className="flex space-x-2">
+                <Link href={`/admin/quizzes/${quiz.id}`}>
+                  <Button variant="outline" size="icon">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </Link>
                 <Link href={`/admin/quizzes/${quiz.id}/edit`}>
                   <Button variant="outline" size="icon">
                     <Edit className="h-4 w-4" />

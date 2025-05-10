@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, 
   BookOpen, 
-  FileQuestion, 
+  Zap, 
   MessageSquare 
 } from 'lucide-react'
 
@@ -23,7 +23,7 @@ const menuItems = [
   {
     title: 'Quizzes',
     href: '/admin/quizzes',
-    icon: FileQuestion
+    icon: Zap
   },
   {
     title: 'Chat Support',

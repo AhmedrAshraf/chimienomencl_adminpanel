@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, X } from 'lucide-react'
 import { quizService } from '@/lib/services/quizService'
 import { toast } from 'sonner'
 
@@ -34,11 +34,9 @@ export function QuizForm() {
       options: [
         { id: crypto.randomUUID(), text: '', isCorrect: false },
         { id: crypto.randomUUID(), text: '', isCorrect: false },
-        { id: crypto.randomUUID(), text: '', isCorrect: false },
-        { id: crypto.randomUUID(), text: '', isCorrect: false },
       ],
     }
-    setQuestions([...questions, newQuestion])
+    setQuestions([newQuestion, ...questions])
   }
 
   const removeQuestion = (questionId: string) => {
@@ -70,6 +68,27 @@ export function QuizForm() {
           ...opt,
           isCorrect: opt.id === optionId
         }))
+      } : q
+    ))
+  }
+
+  const addOption = (questionId: string) => {
+    setQuestions(questions.map(q => 
+      q.id === questionId ? {
+        ...q,
+        options: [
+          ...q.options,
+          { id: crypto.randomUUID(), text: '', isCorrect: false }
+        ]
+      } : q
+    ))
+  }
+
+  const removeOption = (questionId: string, optionId: string) => {
+    setQuestions(questions.map(q => 
+      q.id === questionId ? {
+        ...q,
+        options: q.options.filter(opt => opt.id !== optionId)
       } : q
     ))
   }
@@ -147,31 +166,44 @@ export function QuizForm() {
         {questions.map((question, index) => (
           <Card key={question.id} className="p-6">
             <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium mb-2">
-                    Question {index + 1}
-                  </label>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Question {index + 1}
+                </label>
+                <div className="flex items-center space-x-2">
                   <Input
                     value={question.text}
                     onChange={(e) => updateQuestion(question.id, e.target.value)}
                     placeholder="Enter your question"
                     required
+                    className="flex-1"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeQuestion(question.id)}
+                    className="bg-red-50 hover:bg-red-100 text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeQuestion(question.id)}
-                  className="ml-4"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Options</label>
+              <div className="space-y-2 my-6">
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-medium">Options</label>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => addOption(question.id)}
+                    className="text-accent-foreground"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Option
+                  </Button>
+                </div>
                 {question.options.map((option, optionIndex) => (
                   <div key={option.id} className="flex items-center space-x-2">
                     <input
@@ -186,7 +218,19 @@ export function QuizForm() {
                       onChange={(e) => updateOption(question.id, option.id, e.target.value)}
                       placeholder={`Option ${optionIndex + 1}`}
                       required
+                      className="flex-1"
                     />
+                    {question.options.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeOption(question.id, option.id)}
+                        className="bg-red-50 hover:bg-red-100 text-red-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
