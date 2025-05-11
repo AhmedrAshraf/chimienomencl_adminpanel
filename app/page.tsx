@@ -1,23 +1,30 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/lib/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/auth";
 
 export default function Home() {
-  const { user, loading } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.push('/admin');
+    getUser();
+  }, []);
+
+  const getUser = async () => {
+    setLoading(true);
+    const { data } = await supabase.auth.getUser();
+    setTimeout(() => {
+      if (data?.user) {
+        router.push("/admin");
+        setLoading(false);
       } else {
-        router.push('/login');
+        router.push("/login");
+        setLoading(false);
       }
-    }
-  }, [user, loading, router]);
+    }, 500);
+  };
 
   if (loading) {
     return (
@@ -33,15 +40,15 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col items-center gap-4">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <p className="text-lg font-medium">Redirecting...</p>
+        <div className="flex gap-3 items-center">
+          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            Chimie
+          </span>
+          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            Nomencl
+          </span>
+        </div>
+        <p className="text-lg font-medium">Loading...</p>
       </div>
     </div>
   );

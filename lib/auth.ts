@@ -3,7 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 export type AuthUser = {
   id: string;
@@ -29,49 +35,15 @@ export async function signIn(email: string, password: string) {
       .single();
 
     if (adminError || !adminData) {
-      // If email is not found in admin table, sign them out
+      console.error('Admin check error:', adminError);
+      // If user is not an admin, sign them out
       await supabase.auth.signOut();
       throw new Error('You are not authorized as an admin');
     }
 
     return { data: authData, error: null };
   } catch (error) {
+    console.error('Sign in error:', error);
     return { data: null, error };
   }
 }
-
-export async function signOut() {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    return { error: null };
-  } catch (error) {
-    return { error };
-  }
-}
-
-export async function getCurrentUser() {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
-
-    if (user) {
-      // Check if the user's email is still in the admin table
-      const { data: adminData, error: adminError } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('email', user.email)
-        .single();
-
-      if (adminError || !adminData) {
-        // If email is no longer in admin table, sign them out
-        await supabase.auth.signOut();
-        return { user: null, error: new Error('Admin access revoked') };
-      }
-    }
-
-    return { user, error: null };
-  } catch (error) {
-    return { user: null, error };
-  }
-} 

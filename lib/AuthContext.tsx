@@ -1,57 +1,61 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser, getCurrentUser, signIn, signOut } from './auth';
-import { useRouter } from 'next/navigation';
+import { createContext, useContext, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { signIn, supabase } from "./auth";
 
 type AuthContextType = {
-  user: AuthUser | null;
+  user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
-  signOut: () => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signOut: any;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  async function checkUser() {
+  const handleSignIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const { user, error } = await getCurrentUser();
-      if (error) throw error;
-      setUser(user as AuthUser);
+      const result = await signIn(email, password);
+      if (result.data) {
+        setUser(result.data.user);
+        router.push("/admin");
+      }
+      return result;
     } catch (error) {
-      setUser(null);
+      console.error("Sign in error:", error);
+      return { error };
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const handleSignOut = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+      }
+      router.push("/login");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const value = {
     user,
     loading,
-    signIn: async (email: string, password: string) => {
-      const result = await signIn(email, password);
-      if (!result.error) {
-        await checkUser();
-      }
-      return result;
-    },
-    signOut: async () => {
-      const result = await signOut();
-      if (!result.error) {
-        setUser(null);
-        router.push('/login');
-      }
-      return result;
-    },
+    signIn: handleSignIn,
+    signOut: handleSignOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -60,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-} 
+}
