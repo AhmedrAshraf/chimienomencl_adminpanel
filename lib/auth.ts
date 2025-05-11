@@ -13,13 +13,28 @@ export type AuthUser = {
 
 export async function signIn(email: string, password: string) {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    // First, sign in the user
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) throw error;
-    return { data, error: null };
+    if (authError) throw authError;
+
+    // Then check if the email exists in the admin table
+    const { data: adminData, error: adminError } = await supabase
+      .from('admin')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (adminError || !adminData) {
+      // If email is not found in admin table, sign them out
+      await supabase.auth.signOut();
+      throw new Error('You are not authorized as an admin');
+    }
+
+    return { data: authData, error: null };
   } catch (error) {
     return { data: null, error };
   }
@@ -39,6 +54,22 @@ export async function getCurrentUser() {
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw error;
+
+    if (user) {
+      // Check if the user's email is still in the admin table
+      const { data: adminData, error: adminError } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('email', user.email)
+        .single();
+
+      if (adminError || !adminData) {
+        // If email is no longer in admin table, sign them out
+        await supabase.auth.signOut();
+        return { user: null, error: new Error('Admin access revoked') };
+      }
+    }
+
     return { user, error: null };
   } catch (error) {
     return { user: null, error };

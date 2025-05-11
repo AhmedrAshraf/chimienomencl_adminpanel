@@ -5,13 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
 export default function LoginPage() {
@@ -29,7 +23,14 @@ export default function LoginPage() {
 
     try {
       const { error } = await signIn(email, password);
-      if (error) throw error;
+      if (error) {
+        if (error.message === "You are not authorized as an admin") {
+          setError("Access denied. You are not authorized as an admin.");
+        } else {
+          setError(error.message || "Failed to sign in");
+        }
+        return;
+      }
       router.push("/admin");
     } catch (error: any) {
       setError(error.message || "Failed to sign in");
@@ -66,8 +67,7 @@ export default function LoginPage() {
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-lg">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative w-32 h-32">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse"></div>
-                <div className="absolute inset-2 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
+                <div className="absolute inset-2 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-pulse">
                   <div className="flex flex-col items-center">
                     <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                       Chimie
@@ -78,6 +78,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-spin-slow"></div>
+                <div className="absolute inset-0 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse"></div>
               </div>
               <div className="flex flex-col space-y-2 text-center">
                 <h1 className="text-2xl font-semibold tracking-tight">
@@ -89,8 +90,8 @@ export default function LoginPage() {
               </div>
             </div>
             <Card>
-              <CardContent className="pt-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
+              <CardContent className="py-6">
+                <form onSubmit={handleSubmit} className="space-y-4 px-3">
                   <div className="space-y-2">
                     <label
                       htmlFor="email"
@@ -105,7 +106,7 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="Enter your email"
-                      className="h-10"
+                      className="h-10 mt-1"
                     />
                   </div>
                   <div className="space-y-2">
@@ -122,7 +123,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="Enter your password"
-                      className="h-10"
+                      className="h-10 mt-1"
                     />
                   </div>
                   {error && (
@@ -130,9 +131,9 @@ export default function LoginPage() {
                       {error}
                     </div>
                   )}
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
+                  <Button
+                    type="submit"
+                    className="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                     disabled={loading}
                   >
                     {loading ? (
