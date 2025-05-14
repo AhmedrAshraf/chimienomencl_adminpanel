@@ -51,6 +51,10 @@ export default function EditLearning() {
             type: section.type as 'explanation' | 'example' | 'rule',
             order: section.order,
           })),
+          quizzes: learning.quizzes.map(quiz => ({
+            quiz_id: quiz.quiz_id,
+            quizzes: quiz.quizzes
+          })),
         }}
       />
     </div>

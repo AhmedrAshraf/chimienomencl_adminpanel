@@ -60,6 +60,11 @@ export type LearningQuiz = {
   id: string
   learning_id: string
   quiz_id: string
+  quizzes: {
+    id: string
+    title: string
+    description: string
+  }
 }
 
 export type LearningWithQuiz = Learning & {
