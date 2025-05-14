@@ -20,12 +20,13 @@ export default function AdminDashboard() {
       const quizzesCount = await supabase
         .from("quizzes")
         .select("*", { count: "exact" })
-        .single();
 
       const studentsCount = await supabase
         .from("users")
         .select("*", { count: "exact" })
-        .single();
+
+        console.log("🚀 ~ fetchStats ~ quizzesCount:", quizzesCount)
+        console.log("🚀 ~ fetchStats ~ studentsCount:", studentsCount)
 
       setStats({
         totalQuizzes: quizzesCount.count || 0,
