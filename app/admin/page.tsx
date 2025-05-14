@@ -25,9 +25,6 @@ export default function AdminDashboard() {
         .from("users")
         .select("*", { count: "exact" })
 
-        console.log("🚀 ~ fetchStats ~ quizzesCount:", quizzesCount)
-        console.log("🚀 ~ fetchStats ~ studentsCount:", studentsCount)
-
       setStats({
         totalQuizzes: quizzesCount.count || 0,
         totalStudents: studentsCount.count || 0,
